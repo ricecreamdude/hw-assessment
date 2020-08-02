@@ -11,7 +11,13 @@ function parseCSVData( fileLocation ) {
     let data = fs.readFileSync( fileLocation ).toString();
 
     data = data.split('\n');
-    data = data.map( row => row.split(',') );
+    data = data.map( row => row.trim().split(',') );
+    data = data.map( row => {
+        return row.map( string => {
+            return string.trim()
+        } ) 
+    });
+
     data = data.filter( row => row[0].length > 0); //Remove empty lines
 
     return data;
