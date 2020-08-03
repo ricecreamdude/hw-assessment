@@ -1,6 +1,7 @@
 //Command Line Arguments
 const fs = require('fs')
 const inputArgs = process.argv.slice(2);
+
 const dataService = require('./dataService');
 
 let coursesCache, marksCache, studentsCache, testsCache;
@@ -28,23 +29,20 @@ async function Setup(){
 
     [coursesCache, studentsCache, testsCache, marksCache] = arr;
     
+
+
 }
 
 async function App(){
 
     await Setup();
 
-    console.log("Students",studentsCache);
-    console.log("Courses",coursesCache);
-    console.log("Marks",marksCache);
-    console.log("Tests",testsCache);
-
-    // console.log( makeStudent(1) );
-    // console.log( marksCache );
+    makeStudent(1);
 
 }
 
 App();
+
 //Student Services
 
 //     id: int 1
@@ -79,19 +77,77 @@ function makeStudent( id ){
         courses: []
     }
 
+    // markData = marksCache[id];
+
+    getCourseAverageByCourse(id);
+
     return newStudent;
 }
 
-function getTestsByStudent( studentId ){
-    let testsData = [];   
+function getCourseAverageByCourse( studentId ){
+    let testsData = marksCache[studentId];
+    let courseAverage = 0;
+
+    //Make this dynamic
+    let gradesCache = { };
+
+    let testsDummy = {
+        '1': { course_id: '1', weight: '10' },
+        '2': { course_id: '1', weight: '40' },
+        '3': { course_id: '1', weight: '50' },
+        '4': { course_id: '2', weight: '40' },
+        '5': { course_id: '2', weight: '60' },
+        '6': { course_id: '3', weight: '90' },
+        '7': { course_id: '3', weight: '10' }
+    }
+
+    let marksDummy = {
+        '2': [
+            { testId: '1', mark: '78' },
+            { testId: '2', mark: '87' },
+            { testId: '3', mark: '15' },
+            { testId: '6', mark: '78' },
+            { testId: '7', mark: '40' }
+        ]
+    }
+
+    let studentMarks = marksDummy['2'];
+
+    for (let i = 0; i < studentMarks.length; i++){
+        
+        let testIdToFind = studentMarks[i].testId;
+        let test = testsDummy[testIdToFind];
+        let grade = test.weight * studentMarks[i].mark;
+      
+        if (!gradesCache[test.course_id]) {
+            gradesCache[test.course_id] = grade
+        } else gradesCache[test.course_id] += grade
+        
+    }
+
+    for( const classId in gradesCache){
+        gradesCache[classId] = gradesCache[classId]/100;
+    }
+
+    return gradesCache;
 }
+
+//                       10     //78
+// function calculateGrade(weight, mark){
+
+//     let nWeight = weight;
+//     let nMark = mark;
+
+//     let grade = (nWeight * nMark) * 100;
+
+//     return parseFloat((grade).toFixed(2));
+//     // return grade;
+// }
 
 ///WRITE FILE ///
 function writeFile( data ){
     //Create a big ol data file first
 
-
     //Write once
     fs.writeFileSync( inputArgs[4], JSON.stringify(data) );
-
 }
