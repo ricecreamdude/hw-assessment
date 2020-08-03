@@ -1,86 +1,97 @@
 //Command Line Arguments
 const fs = require('fs')
-
 const inputArgs = process.argv.slice(2);
+const dataService = require('./dataService');
 
-let coursesArr, marksArr, studentsArr, testsArr;
+let coursesCache, marksCache, studentsCache, testsCache;
 
-//Async this
-function parseCSVData( fileLocation ) {
+//Data Setup
 
-    let data = fs.readFileSync( fileLocation ).toString();
+//Main Application
+async function Setup(){
 
-    data = data.split('\n');
-    data = data.map( row => row.trim().split(',') );
-    data = data.map( row => {
-        return row.map( string => {
-            return string.trim()
-        } ) 
-    });
+    let arr = []
 
-    data = data.filter( row => row[0].length > 0); //Remove empty lines
+    for( let i = 0; i < inputArgs.length - 1; i++ ){
 
-    return data;
-}
+        let path = inputArgs[i];
 
-async function createCacheObject( fileLocation ){
+        // let data = await dataService.createPrimaryKeyCache( path );
+        // arr.push( data );
 
-    let cache = {}
-    let data = await parseCSVData(fileLocation); 
-
-    let columns = data[0];
-    data = data.splice(1);
-    
-    for (let i = 0; i < data.length; i++){
-        let row = data[i];
-        for (let j = 0; j < row.length; j++){
-                        
-            let colName = columns[j];
-            if (j == 0) cache[ row[j] ] = {};
-            else cache[ row [0] ] = {
-                ...cache[ row [0] ],
-                [colName]: row[j]
-            };
+        if (i == 3) arr.push( await dataService.createMarksCache( path ) ) 
+        else {
+            let data = await dataService.createPrimaryKeyCache( path );
+            arr.push( data );
         }
     }
 
-    console.log(cache);
+    [coursesCache, studentsCache, testsCache, marksCache] = arr;
+    
 }
 
-async function test(){
+async function App(){
 
+    await Setup();
 
-    for( let i = 0; i < inputArgs.length - 1; i++ ){
-        let path = inputArgs[i];
-    
-        createCacheObject( path );
+    console.log("Students",studentsCache);
+    console.log("Courses",coursesCache);
+    console.log("Marks",marksCache);
+    console.log("Tests",testsCache);
+
+    // console.log( makeStudent(1) );
+    // console.log( marksCache );
+
+}
+
+App();
+//Student Services
+
+//     id: int 1
+//     name: string "a"
+//     totalAverage: int 72.03, // Can't comput unless we have all grades
+//     courses: array{}
+//         id  int 1
+//         name string “Biology”
+//         teacher string “Mr. D”
+//         courseAverage int 90.1
+
+//Make student
+    //Get all courses that student is in
+        //Get the test that student has taken
+
+        //Calculate the course average
+    //calculate the total average
+
+//Return Student
+
+//Return that student
+
+//Returns a single student
+function makeStudent( id ){
+
+    const studentData = studentsCache[id];
+
+    let newStudent = {
+        id: id,
+        name: studentData.name,
+        totalAverage: 999,
+        courses: []
     }
 
-     
+    return newStudent;
 }
 
-test();
+function getTestsByStudent( studentId ){
+    let testsData = [];   
+}
+
+///WRITE FILE ///
+function writeFile( data ){
+    //Create a big ol data file first
 
 
+    //Write once
+    fs.writeFileSync( inputArgs[4], JSON.stringify(data) );
 
-// console.log(inputArgs);
-
-//
-
-
-
-//Ideal command:
-//node main.js data/courses.csv data/students.csv data/tests.csv data/marks.csv output.json 
-//                INPUT   INPUT        INPUT     INPUT     OUTPUT
-
-
-
-
-//Data Processing
-//Read the files
-
-//Sanatize the data
-
-//Create data output
-
-//Save the file
+}
