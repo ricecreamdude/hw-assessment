@@ -2,6 +2,7 @@
 const fs = require('fs')
 const dataService = require('./dataService');
 
+//node main.js data/courses.csv data/students.csv data/tests.csv data/marks.csv output.json
 //Application Data
 let coursesCache, marksCache, studentsCache, testsCache;
 
@@ -15,10 +16,10 @@ async function App(){
     //Setup application data
     [coursesCache, studentsCache, testsCache, marksCache] = await dataService.createAppCache( inputArgs );
     
-    console.log()
     //Construct output JSON file structure
     for (const id in studentsCache){
-        outputData.students.push( makeStudent(id) );
+        let newStudent = makeStudent(id)
+        if (newStudent) outputData.students.push(newStudent);
     }
 
     //Validate information
@@ -36,29 +37,38 @@ function makeStudent( id ){
     let totalAvg = 0;
 
     let newStudent = {
-        id: id,
+        id: parseInt(id),
         name: studentData.name,
         totalAverage: 9999,
-        courses: getStudentCourseAverage(id)
+        courses: generateClass(id)
     }
+
+    //Ignore students that have no grades
+    if (!newStudent.courses) return;
 
     for (let i = 0; i < newStudent.courses.length; i++){
         totalAvg += newStudent.courses[i].courseAverage;   
     }
 
-    totalAvg = Math.floor( (totalAvg * 100) / 3) / 100;
+    totalAvg = Math.floor( (totalAvg * 100) / newStudent.courses.length) / 100;
      
     newStudent.totalAverage = totalAvg;
     
     return newStudent;
 }
 
+
 //returns course: combined weighted scores
-function getStudentCourseAverage( studentId ){
+//function getStudentCourseAverage( studentId ){
+function getWeightedGrades( studentId ){
     
-    let gradesCache = { };
+    //Creates weighted scores
+    //If the weight is >100 then return error
+    let gradesCache = {};
 
     let studentMarks = marksCache[studentId];
+
+    if (!studentMarks) return;
 
     for (let i = 0; i < studentMarks.length; i++){
         
@@ -71,20 +81,28 @@ function getStudentCourseAverage( studentId ){
         } else gradesCache[test.course_id] += grade   
     }
 
+    return gradesCache;
+
+}
+
+function generateClass(studentId){
+    //Creates a whole course
+
     let answer = [];
+    let gradesCache = getWeightedGrades(studentId);
 
     for( const classId in gradesCache){
         let data = {
-            "id": classId,
+            "id": parseInt(classId),
             "name": coursesCache[classId].name,
             "teacher": coursesCache[classId].teacher,
             "courseAverage": gradesCache[classId]/100
         }
 
-        answer.push(data)
-
+        answer.push(data);
     }
 
     return answer;
 }
+
 
