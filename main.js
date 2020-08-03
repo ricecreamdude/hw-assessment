@@ -17,9 +17,6 @@ async function Setup(){
 
         let path = inputArgs[i];
 
-        // let data = await dataService.createPrimaryKeyCache( path );
-        // arr.push( data );
-
         if (i == 3) arr.push( await dataService.createMarksCache( path ) ) 
         else {
             let data = await dataService.createPrimaryKeyCache( path );
@@ -28,74 +25,39 @@ async function Setup(){
     }
 
     [coursesCache, studentsCache, testsCache, marksCache] = arr;
-    
-
-
 }
 
 async function App(){
 
     await Setup();
-
     makeStudent(1);
 
 }
 
 App();
 
-//Student Services
-
-//     id: int 1
-//     name: string "a"
-//     totalAverage: int 72.03, // Can't comput unless we have all grades
-//     courses: array{}
-//         id  int 1
-//         name string “Biology”
-//         teacher string “Mr. D”
-//         courseAverage int 90.1
-
-//Make student
-    //Get all courses that student is in
-        //Get the test that student has taken
-
-        //Calculate the course average
-    //calculate the total average
-
-//Return Student
-
-//Return that student
-
-//Returns a single student
 function makeStudent( id ){
 
     const studentData = studentsCache[id];
+    let totalAvg = 0;
 
     let newStudent = {
         id: id,
         name: studentData.name,
-        totalAverage: 999,
-        courses: []
+        totalAverage: 9999,
+        courses: getStudentCourseAverage(id)
     }
 
-    // markData = marksCache[id];
-    let courseAverages = getStudentCourseAverage(id);
-
-    for( const classId in courseAverages){
-
-        let data = {
-            "id": classId,
-            "name": coursesCache[classId].name,
-            "teacher": coursesCache[classId].teacher,
-            "courseAverage": courseAverages[classId]
-        }
-
-        console.log(data);
-
-        newStudent.courses.push(data)
+    for (let i = 0; i < newStudent.courses.length; i++){
+        totalAvg += newStudent.courses[i].courseAverage;   
     }
 
+    totalAvg = Math.floor( (totalAvg * 100) / 3) / 100;
+     
+    newStudent.totalAverage = totalAvg;
 
-
+    console.log(newStudent);
+    
     return newStudent;
 }
 
@@ -117,24 +79,22 @@ function getStudentCourseAverage( studentId ){
         } else gradesCache[test.course_id] += grade   
     }
 
+    let answer = [];
+
     for( const classId in gradesCache){
-        gradesCache[classId] = gradesCache[classId]/100;
+        let data = {
+            "id": classId,
+            "name": coursesCache[classId].name,
+            "teacher": coursesCache[classId].teacher,
+            "courseAverage": gradesCache[classId]/100
+        }
+
+        answer.push(data)
+
     }
 
-    return gradesCache;
+    return answer;
 }
-
-//                       10     //78
-// function calculateGrade(weight, mark){
-
-//     let nWeight = weight;
-//     let nMark = mark;
-
-//     let grade = (nWeight * nMark) * 100;
-
-//     return parseFloat((grade).toFixed(2));
-//     // return grade;
-// }
 
 ///WRITE FILE ///
 function writeFile( data ){
