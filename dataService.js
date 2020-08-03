@@ -1,23 +1,24 @@
-const fs = require('fs')
+const fs = require('fs');
 
-function parseCSVData( fileLocation ) {
+async function createAppCache(inputArgs){
 
-    let data = fs.readFileSync( fileLocation ).toString(); //Error handling for empty file?
+    let appCache = []
 
-    data = data.split('\n');
-    data = data.map( row => row.trim().split(',') );
-    data = data.map( row => {
-        return row.map( string => {
-            return string.trim()
-        } ) 
-    });
+    for( let i = 0; i < inputArgs.length - 1; i++ ){
 
-    data = data.filter( row => row[0].length > 0); //Remove empty lines
+        let path = inputArgs[i];
 
-    return data;
+        if (i == 3) appCache.push( await createMarksCache( path ) ) 
+        else {
+            let data = await createPrimaryKeyCache( path );
+            appCache.push( data );
+        }
+    }
+
+    return appCache;
 }
 
-//create composite key cache, specifically for marks
+// Marks is composite key and needs to be handled differently
 async function createMarksCache( fileLocation ){
 
     let cache = {};
@@ -39,8 +40,6 @@ async function createMarksCache( fileLocation ){
 
     return cache;
 }
-
-
 
 //Data Setup
 async function createPrimaryKeyCache( fileLocation ){
@@ -67,5 +66,31 @@ async function createPrimaryKeyCache( fileLocation ){
     return cache;
 }
 
-exports.createPrimaryKeyCache = createPrimaryKeyCache;
-exports.createMarksCache = createMarksCache;
+function parseCSVData( fileLocation ) {
+
+    let data = fs.readFileSync( fileLocation ).toString(); //Error handling for empty file?
+
+    data = data.split('\n');
+    data = data.map( row => row.trim().split(',') );
+    data = data.map( row => {
+        return row.map( string => {
+            return string.trim()
+        } ) 
+    });
+
+    data = data.filter( row => row[0].length > 0); //Remove empty lines
+
+    return data;
+}
+
+///WRITE FILE ///
+function writeFile( fileName, data ){
+    //Create a big ol data file first
+
+    //Write once
+    fs.writeFileSync( fileName, JSON.stringify(data) );
+}
+
+
+exports.createAppCache = createAppCache;
+exports.writeFile = writeFile;

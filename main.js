@@ -1,36 +1,28 @@
 //Command Line Arguments
 const fs = require('fs')
-const inputArgs = process.argv.slice(2);
 
 const dataService = require('./dataService');
 
+//Application Data
 let coursesCache, marksCache, studentsCache, testsCache;
 
-//Data Setup
-
 //Main Application
-async function Setup(){
-
-    let arr = []
-
-    for( let i = 0; i < inputArgs.length - 1; i++ ){
-
-        let path = inputArgs[i];
-
-        if (i == 3) arr.push( await dataService.createMarksCache( path ) ) 
-        else {
-            let data = await dataService.createPrimaryKeyCache( path );
-            arr.push( data );
-        }
-    }
-
-    [coursesCache, studentsCache, testsCache, marksCache] = arr;
-}
-
 async function App(){
 
-    await Setup();
-    makeStudent(1);
+    const inputArgs = process.argv.slice(2);
+    const outputFilename = inputArgs[4];
+
+    //Setup application data
+    [coursesCache, studentsCache, testsCache, marksCache] = await dataService.createAppCache( inputArgs );
+    
+
+    //Construct output JSON file structure
+    let data = makeStudent(1);
+
+    //Validate information
+    
+    //Write output.json
+    dataService.writeFile(outputFilename, data);
 
 }
 
@@ -96,10 +88,3 @@ function getStudentCourseAverage( studentId ){
     return answer;
 }
 
-///WRITE FILE ///
-function writeFile( data ){
-    //Create a big ol data file first
-
-    //Write once
-    fs.writeFileSync( inputArgs[4], JSON.stringify(data) );
-}
