@@ -10,7 +10,7 @@
     "test": "jest --verbose --coverage",
     "start": "node main.js data/courses.csv data/students.csv data/tests.csv data/marks.csv output.json"
   },
-  "author": "",
+  "author": "Joshua Ho",
   "license": "ISC",
   "dependencies": {
     "csv": "^5.3.2"
