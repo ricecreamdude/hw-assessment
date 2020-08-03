@@ -1,6 +1,5 @@
 //Command Line Arguments
 const fs = require('fs')
-
 const dataService = require('./dataService');
 
 //Application Data
@@ -11,18 +10,21 @@ async function App(){
 
     const inputArgs = process.argv.slice(2);
     const outputFilename = inputArgs[4];
+    const outputData = {students: [] };
 
     //Setup application data
     [coursesCache, studentsCache, testsCache, marksCache] = await dataService.createAppCache( inputArgs );
     
-
+    console.log()
     //Construct output JSON file structure
-    let data = makeStudent(1);
+    for (const id in studentsCache){
+        outputData.students.push( makeStudent(id) );
+    }
 
     //Validate information
-    
+
     //Write output.json
-    dataService.writeFile(outputFilename, data);
+    dataService.writeFile(outputFilename, outputData);
 
 }
 
@@ -47,8 +49,6 @@ function makeStudent( id ){
     totalAvg = Math.floor( (totalAvg * 100) / 3) / 100;
      
     newStudent.totalAverage = totalAvg;
-
-    console.log(newStudent);
     
     return newStudent;
 }
