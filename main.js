@@ -78,51 +78,43 @@ function makeStudent( id ){
     }
 
     // markData = marksCache[id];
+    let courseAverages = getStudentCourseAverage(id);
 
-    getCourseAverageByCourse(id);
+    for( const classId in courseAverages){
+
+        let data = {
+            "id": classId,
+            "name": coursesCache[classId].name,
+            "teacher": coursesCache[classId].teacher,
+            "courseAverage": courseAverages[classId]
+        }
+
+        console.log(data);
+
+        newStudent.courses.push(data)
+    }
+
+
 
     return newStudent;
 }
 
-function getCourseAverageByCourse( studentId ){
-    let testsData = marksCache[studentId];
-    let courseAverage = 0;
-
-    //Make this dynamic
+//returns course: combined weighted scores
+function getStudentCourseAverage( studentId ){
+    
     let gradesCache = { };
 
-    let testsDummy = {
-        '1': { course_id: '1', weight: '10' },
-        '2': { course_id: '1', weight: '40' },
-        '3': { course_id: '1', weight: '50' },
-        '4': { course_id: '2', weight: '40' },
-        '5': { course_id: '2', weight: '60' },
-        '6': { course_id: '3', weight: '90' },
-        '7': { course_id: '3', weight: '10' }
-    }
-
-    let marksDummy = {
-        '2': [
-            { testId: '1', mark: '78' },
-            { testId: '2', mark: '87' },
-            { testId: '3', mark: '15' },
-            { testId: '6', mark: '78' },
-            { testId: '7', mark: '40' }
-        ]
-    }
-
-    let studentMarks = marksDummy['2'];
+    let studentMarks = marksCache[studentId];
 
     for (let i = 0; i < studentMarks.length; i++){
         
         let testIdToFind = studentMarks[i].testId;
-        let test = testsDummy[testIdToFind];
+        let test = testsCache[testIdToFind];
         let grade = test.weight * studentMarks[i].mark;
       
         if (!gradesCache[test.course_id]) {
             gradesCache[test.course_id] = grade
-        } else gradesCache[test.course_id] += grade
-        
+        } else gradesCache[test.course_id] += grade   
     }
 
     for( const classId in gradesCache){
