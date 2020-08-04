@@ -11,9 +11,9 @@ class Report{
         this.marksCache = marksCache;
     }
     generate(){
+
         const reportData = {students: [] };
 
-        //Validation code here
         this.validateCache();
 
         for (const id in this.studentsCache){
@@ -73,11 +73,9 @@ class Report{
 
     generateWeightedGrades( studentId ){
 
-        //Creates weighted scores
         let tempGradesCache = {};
-    
         let studentMarks = this.marksCache[studentId];
-    
+        
         if (!studentMarks) return;
     
         for (let i = 0; i < studentMarks.length; i++){
@@ -97,16 +95,13 @@ class Report{
 
     validateCache(){
         
+        //Room for lots of validation
         this.validateClassWeight();
 
     }
 
-    validateFields(){
-
-    }
-
     validateClassWeight(){
-        //Need to organize tests by class
+        //Classes with tests !== 100 throw an error
         let courses = {};
 
         for (const cId in this.coursesCache){
@@ -122,7 +117,6 @@ class Report{
             courses[fetchId].totalWeight += parseInt(test.weight);
         }
 
-        //validate code
         for (const cId in this.coursesCache){
             if (courses[cId].totalWeight !== 100){
                 throw 'Invalid Weight Detected';

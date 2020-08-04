@@ -2,7 +2,7 @@ const fs = require('fs');
 
 async function createAppCache(inputArgs){
 
-    let appCache = []
+    let appCache = [];
 
     for( let i = 0; i < inputArgs.length - 1; i++ ){
 

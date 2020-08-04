@@ -1,11 +1,11 @@
-//Command Line Arguments
 const dataService = require('./scripts/dataService');
 let Report = require('./scripts/Report');
 
-//node main.js data/courses.csv data/students.csv data/tests.csv data/marks.csv output.json
+//Input: node main.js data/courses.csv data/students.csv data/tests.csv data/marks.csv output.json
 //Main Application
 async function App(){
 
+    //Command Line Arguments
     const inputArgs = process.argv.slice(2);
     const outputFilename = inputArgs[4];
 
@@ -21,9 +21,6 @@ async function App(){
         console.log(err);
         dataService.writeFile(outputFilename, {"error": err});
     }
-
 }
 
 App();
-
-export default App;
