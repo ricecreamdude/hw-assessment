@@ -12,21 +12,18 @@ async function App(){
     //Setup application data
     let [coursesCache, studentsCache, testsCache, marksCache] = await dataService.createAppCache( inputArgs );
     
-    console.log('inputArgs', inputArgs);
-
     try{
         let report = new Report(coursesCache, studentsCache, testsCache, marksCache);
         let outputData = report.generate();
+
+        dataService.writeFile(outputFilename, outputData);
     } catch(err){
-        let errMessage = err.message
-        dataService.writeFile(outputFilename, errMessage);
+        console.log(err);
+        dataService.writeFile(outputFilename, {"error": err});
     }
-
-
-
-    //Write output.json
-    dataService.writeFile(outputFilename, outputData);
 
 }
 
 App();
+
+export default App;

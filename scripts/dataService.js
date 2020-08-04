@@ -19,10 +19,12 @@ async function createAppCache(inputArgs){
 }
 
 // Marks is composite key and needs to be handled differently
-async function createMarksCache( fileLocation ){
+async function createMarksCache(fileLocation){
 
     let cache = {};
     let data = await parseCSVData(fileLocation); 
+
+    validateMarksCache(data);
 
     data = data.splice(1);
 
@@ -41,10 +43,9 @@ async function createMarksCache( fileLocation ){
     return cache;
 }
 
-//Data Setup
 async function createPrimaryKeyCache( fileLocation ){
 
-    let cache = {}
+    let cache = {};
     let data = await parseCSVData(fileLocation); 
 
     let columns = data[0];
@@ -68,7 +69,13 @@ async function createPrimaryKeyCache( fileLocation ){
 
 function parseCSVData( fileLocation ) {
 
-    let data = fs.readFileSync( fileLocation ).toString(); //Error handling for empty file?
+    let data;
+    try{
+        data = fs.readFileSync( fileLocation ).toString(); //Error handling for empty file?
+    } catch(err){
+        throw "Invalid file location";
+    }
+    
 
     data = data.split('\n');
     data = data.map( row => row.trim().split(',') );
@@ -83,14 +90,53 @@ function parseCSVData( fileLocation ) {
     return data;
 }
 
-///WRITE FILE ///
 function writeFile( fileName, data ){
-    //Create a big ol data file first
 
-    //Write once
-    fs.writeFileSync( fileName, JSON.stringify(data) );
+    validateFileName(fileName);
+    validateData(data);
+
+    try{
+        fs.writeFileSync( fileName, JSON.stringify(data) );
+    } catch(err){
+        throw "Internal error - Problem with writing file";
+    }
 }
 
+function validateFileName(fileName){
 
-exports.createAppCache = createAppCache;
-exports.writeFile = writeFile;
+    try{
+        let fileArray = fileName.split(".");
+        if (fileArray[1] !== 'json') throw "Output String Error - Please include .json as file output type";
+    } catch(err){
+        throw err;
+    }
+
+}
+
+function validateData(data){
+    if (typeof data !== "object") throw "Interal Error - Invalid Data Input for Write"
+}
+
+function validateMarksCache(data){
+    try{
+        let expectedHeaders = [ 'mark', 'student_id', 'test_id' ];
+        let headers = data[0].sort();
+
+        for(var i = 0; i < expectedHeaders.length; i++){
+            if (expectedHeaders[i] !== headers[i]){
+                throw "Invalid Marks Column Names - Please check input order";
+            }
+        }
+
+    } catch(err) {
+        throw "Invalid Marks Column Names - Please check input order";
+    }
+}
+
+module.exports = exports = {
+    createPrimaryKeyCache,
+    createAppCache,
+    writeFile,
+    parseCSVData,
+    createMarksCache
+}

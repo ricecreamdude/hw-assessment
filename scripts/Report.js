@@ -14,6 +14,7 @@ class Report{
         const reportData = {students: [] };
 
         //Validation code here
+        this.validateCache();
 
         for (const id in this.studentsCache){
             let newStudent = this.generateStudent(id)
@@ -27,7 +28,9 @@ class Report{
 
         const studentData = this.studentsCache[id];
         let totalAvg = 0;
-    
+        
+        if (!studentData) return;
+
         let newStudent = {
             id: parseInt(id),
             name: studentData.name,
@@ -36,7 +39,7 @@ class Report{
         }
     
         //Ignore students that have no grades
-        if (!newStudent.courses) return;
+        if (!newStudent.courses.length ) return;
     
         for (let i = 0; i < newStudent.courses.length; i++){
             totalAvg += newStudent.courses[i].courseAverage;   
@@ -51,7 +54,6 @@ class Report{
 
     generateClass(studentId){
 
-        //Creates a whole course
         let answer = [];
         let tempGradesCache = this.generateWeightedGrades(studentId);
     
@@ -65,14 +67,13 @@ class Report{
     
             answer.push(data);
         }
-    
+
         return answer;
     }
 
     generateWeightedGrades( studentId ){
 
         //Creates weighted scores
-        //If the weight is >100 then return error
         let tempGradesCache = {};
     
         let studentMarks = this.marksCache[studentId];
@@ -95,8 +96,9 @@ class Report{
     }
 
     validateCache(){
-        //function one
-        //function two
+        
+        this.validateClassWeight();
+
     }
 
     validateFields(){
@@ -114,7 +116,6 @@ class Report{
         }
 
         for (const tId in this.testsCache){
-
             let test = this.testsCache[tId];
             let fetchId = test.course_id;
 
